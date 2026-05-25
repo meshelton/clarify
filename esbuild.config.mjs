@@ -42,6 +42,12 @@ const context = await esbuild.context({
 	loader: { '.ts': 'ts', '.tsx': 'tsx' },
 	jsx: 'automatic',
 	jsxImportSource: 'preact',
+	alias: {
+		'react': 'preact/compat',
+		'react-dom': 'preact/compat',
+		'react/jsx-runtime': 'preact/jsx-runtime',
+		'react/jsx-dev-runtime': 'preact/jsx-dev-runtime',
+	},
 });
 
 if (prod) {
