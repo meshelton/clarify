@@ -22,6 +22,7 @@ import type { ProjectRef } from '../vault/services/ProjectService';
 interface Props {
   settings: ClarifySettings;
   runEffect: <A, E>(e: Effect.Effect<A, E, any>) => Promise<A>;
+  onDone?: () => void;
 }
 
 const OutcomeOptions = [
@@ -152,7 +153,7 @@ const ItemFlow = ({ item, projects, settings, onSubmitted }: { item: Item; proje
   return <div>Unknown state: {JSON.stringify(v)}</div>;
 };
 
-export const Wizard = ({ settings, runEffect }: Props) => {
+export const Wizard = ({ settings, runEffect, onDone }: Props) => {
   const [snapshot, send] = useMachine(sessionMachine, { input: { settings, runEffect } });
   const [projects, setProjects] = useState<ProjectRef[]>([]);
 
@@ -181,7 +182,7 @@ export const Wizard = ({ settings, runEffect }: Props) => {
     case 'empty':
       return <div class="clarify-empty">Inbox is empty. Nothing to clarify.</div>;
     case 'complete':
-      return <SessionComplete total={snapshot.context.queue.length} errors={snapshot.context.errors} onClose={() => {/* close handled by Obsidian leaf */}} />;
+      return <SessionComplete total={snapshot.context.queue.length} errors={snapshot.context.errors} onClose={() => onDone?.()} />;
     case 'aborted':
       return <div class="clarify-aborted">Session ended.</div>;
     case 'errored':
