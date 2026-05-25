@@ -115,4 +115,30 @@ describe('applyOutcome', () => {
     expect(out).toContain('time: 30');
     expect(out).toContain('@computer');
   });
+
+  it('project: creates new project note, original item becomes first next action', async () => {
+    const store = new Map([
+      ['00 Inbox/x.md', '---\nstatus: captured\ntags: [task]\n---\nDraft the homepage copy\n'],
+    ]);
+    const layer = Layer.merge(VaultServiceTest(store), MetadataServiceTest());
+    await Effect.runPromise(
+      applyOutcome(inboxItem('00 Inbox/x.md'), {
+        type: 'project',
+        outcome: 'Website launched with new branding',
+        firstActionText: 'Draft homepage copy',
+        areaLink: '[[Marketing]]',
+      }, defaultSettings).pipe(Effect.provide(layer))
+    );
+    // Project note created somewhere under Projects/
+    const projectPath = Array.from(store.keys()).find((k) => k.startsWith('Projects/'));
+    expect(projectPath).toBeDefined();
+    const projectNote = store.get(projectPath!)!;
+    expect(projectNote).toContain('outcome: Website launched with new branding');
+    expect(projectNote).toContain('status: active');
+    expect(projectNote).toContain('project'); // tag
+    // Original item moved to Next/ as the first next action, linked to the new project
+    const next = store.get('Next/x.md')!;
+    expect(next).toContain('status: next');
+    expect(next).toMatch(/project: \[\[.+\]\]/);
+  });
 });

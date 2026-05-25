@@ -5,6 +5,7 @@ import { ClarifySettings } from '../../settings/schema';
 import { Outcome } from '../schema/outcome';
 import { Item } from '../schema/item';
 import { moveAndRewrite } from './moveAndRewrite';
+import { applyProjectOutcome } from './applyProjectOutcome';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -112,7 +113,6 @@ export const applyOutcome = (
       });
 
     case 'project':
-      // Implemented in Task 3.4
-      return Effect.die('project outcome not yet implemented');
+      return applyProjectOutcome(item, outcome, settings);
   }
 };
