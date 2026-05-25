@@ -25,14 +25,14 @@ export const readInbox = (settings: ClarifySettings) =>
       const everything = yield* vault.listFolder('');
       for (const path of everything) {
         if (all.includes(path)) continue;
-        const fm = yield* meta.read(path).pipe(Effect.catchAll(() => Effect.succeed({})));
+        const fm = yield* meta.read(path).pipe(Effect.catchAll(() => Effect.succeed({} as Record<string, unknown>)));
         if (fm[settings.inbox.statusFieldName] === capturedValue) all.push(path);
       }
     }
 
     const items: Item[] = [];
     for (const path of all) {
-      const fm = yield* meta.read(path).pipe(Effect.catchAll(() => Effect.succeed({})));
+      const fm = yield* meta.read(path).pipe(Effect.catchAll(() => Effect.succeed({} as Record<string, unknown>)));
       items.push({
         path,
         title: stem(path),

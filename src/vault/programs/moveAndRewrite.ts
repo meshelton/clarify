@@ -5,11 +5,11 @@ import { OutcomeWriteError } from '../errors';
 
 export interface MoveAndRewriteOptions {
   fromPath: string;
-  toFolder: string | null;            // null = stay in place
-  frontmatterPatch: Frontmatter;      // fields to set/add
-  fieldsToRemove: string[];           // fields to drop
-  tagsAdd?: string[];
-  tagsRemove?: string[];
+  toFolder: string | null;             // null = stay in place
+  frontmatterPatch: Frontmatter;       // fields to set/add
+  fieldsToRemove: readonly string[];   // fields to drop
+  tagsAdd?: readonly string[];
+  tagsRemove?: readonly string[];
 }
 
 const fileName = (path: string) => path.split('/').pop() ?? path;
