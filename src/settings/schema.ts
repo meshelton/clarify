@@ -54,7 +54,7 @@ export const defaultSettings: ClarifySettings = {
     doNow:      { statusValue: 'done', completedDateField: 'completedDate' },
     waitingFor: { folder: 'Waiting',  statusValue: 'waiting',   tagsAdd: ['waiting'],   whoField: 'waitingFor', followUpField: 'scheduled' },
     calendar:   { statusValue: 'scheduled', dateField: 'scheduled' },
-    nextAction: { folder: 'Next', statusValue: 'next', contextField: 'context', energyField: 'energy', timeField: 'time' },
+    nextAction: { folder: 'Next', statusValue: 'next', contextField: 'contexts', energyField: 'energy', timeField: 'time' },
   },
   projectsAndAreas: {
     projectsFolder: 'Projects',

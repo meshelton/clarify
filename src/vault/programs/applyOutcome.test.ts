@@ -100,7 +100,7 @@ describe('applyOutcome', () => {
     expect(store.get('00 Inbox/x.md')!).toContain('scheduled: 2026-06-15');
   });
 
-  it('nextAction: moves to Next/, sets context/energy/time and context tag', async () => {
+  it('nextAction: moves to Next/, sets contexts array (TaskNotes-compatible), energy, time', async () => {
     const store = seed('00 Inbox/x.md');
     const layer = Layer.merge(VaultServiceTest(store), MetadataServiceTest());
     await Effect.runPromise(
@@ -110,10 +110,12 @@ describe('applyOutcome', () => {
       }, defaultSettings).pipe(Effect.provide(layer))
     );
     const out = store.get('Next/x.md')!;
-    expect(out).toContain('context: @computer');
+    // TaskNotes-compatible: contexts is an array under the `contexts` key
+    expect(out).toContain('contexts: [@computer]');
     expect(out).toContain('energy: medium');
     expect(out).toContain('time: 30');
-    expect(out).toContain('@computer');
+    // Context should NOT be added to the tags array
+    expect(out).not.toMatch(/tags:.*@computer/);
   });
 
   it('project: creates new project note, original item becomes first next action', async () => {
