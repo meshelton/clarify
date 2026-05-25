@@ -13,7 +13,7 @@ interface Props {
 
 // Minimal shape we need from the TaskNotes plugin instance.
 interface TaskNotesLike {
-  cacheManager?: { getTaskInfo: (file: unknown) => Promise<unknown> };
+  cacheManager?: { getTaskInfo: (path: string) => Promise<unknown> };
   openTaskEditModal?: (task: unknown, onTaskUpdated?: () => void) => void;
 }
 
@@ -29,9 +29,8 @@ export const NextActionDelegate = ({ app, item, onDone }: Props) => {
       return;
     }
     try {
-      const file = app.vault.getAbstractFileByPath(item.path);
-      if (!file) { setError(`File not found: ${item.path}`); return; }
-      const taskInfo = await tn.cacheManager.getTaskInfo(file);
+      // TaskNotes' cacheManager.getTaskInfo expects a string path, not a TFile.
+      const taskInfo = await tn.cacheManager.getTaskInfo(item.path);
       if (!taskInfo) { setError('TaskNotes could not load this file as a task.'); return; }
       setOpened(true);
       tn.openTaskEditModal(taskInfo, () => onDone());
