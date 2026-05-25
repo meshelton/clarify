@@ -4,17 +4,13 @@ import type { App } from 'obsidian';
 import { ItemCard } from '../components/ItemCard';
 import { QuestionBanner } from '../components/QuestionBanner';
 import type { Item } from '../../vault/schema/item';
+import { getTaskNotesAdapter, type TaskInfo } from '../../integrations/tasknotes';
 
 interface Props {
   app: App;
   item: Item;
+  /** Called once TaskNotes has finished editing (or the user opted out). */
   onDone: () => void;
-}
-
-// Minimal shape we need from the TaskNotes plugin instance.
-interface TaskNotesLike {
-  cacheManager?: { getTaskInfo: (path: string) => Promise<unknown> };
-  openTaskEditModal?: (task: unknown, onTaskUpdated?: () => void) => void;
 }
 
 export const NextActionDelegate = ({ app, item, onDone }: Props) => {
@@ -22,18 +18,28 @@ export const NextActionDelegate = ({ app, item, onDone }: Props) => {
   const [error, setError]   = useState<string | null>(null);
 
   const openTaskNotes = async () => {
-    const tn = ((app as unknown as { plugins?: { plugins?: Record<string, TaskNotesLike> } })
-      .plugins?.plugins?.tasknotes);
-    if (!tn?.openTaskEditModal || !tn.cacheManager?.getTaskInfo) {
+    const adapter = getTaskNotesAdapter(app);
+    if (!adapter) {
       setError('TaskNotes API not available.');
       return;
     }
     try {
-      // TaskNotes' cacheManager.getTaskInfo expects a string path, not a TFile.
-      const taskInfo = await tn.cacheManager.getTaskInfo(item.path);
-      if (!taskInfo) { setError('TaskNotes could not load this file as a task.'); return; }
+      const taskInfo = await adapter.getTaskInfo(item.path);
+      if (!taskInfo) {
+        setError('TaskNotes could not load this file as a task.');
+        return;
+      }
       setOpened(true);
-      tn.openTaskEditModal(taskInfo, () => onDone());
+      adapter.openEditModal(taskInfo, (updated: TaskInfo) => {
+        // TaskNotes may move the file based on its own folder/template settings.
+        // Mutate the Item in place so the queue (which sessionMachine reads on
+        // applyOutcome) picks up the new path. The Item is the same JS object
+        // sessionMachine holds in its queue, so this mutation is the cheapest
+        // way to forward the new path through to apply without restructuring
+        // the state machine's output shape.
+        if (updated?.path && updated.path !== item.path) item.path = updated.path;
+        onDone();
+      });
     } catch (e) {
       setError(String(e));
     }
