@@ -102,7 +102,10 @@ export const applyOutcome = (
         [settings.inbox.statusFieldName]: settings.outcomes.nextAction.statusValue,
         [link]: outcome.projectLink,
       };
-      if (outcome.context !== undefined) patch[settings.outcomes.nextAction.contextField] = outcome.context;
+      // TaskNotes stores contexts as an array under the `contexts` key, not as
+      // a single string and not as a tag. We write it the same way so the file
+      // is interoperable with the TaskNotes views and filters.
+      if (outcome.context !== undefined) patch[settings.outcomes.nextAction.contextField] = [outcome.context];
       if (outcome.energy  !== undefined) patch[settings.outcomes.nextAction.energyField]  = outcome.energy;
       if (outcome.time    !== undefined) patch[settings.outcomes.nextAction.timeField]    = outcome.time;
       return moveAndRewrite({
@@ -110,7 +113,6 @@ export const applyOutcome = (
         toFolder: settings.outcomes.nextAction.folder,
         frontmatterPatch: patch,
         fieldsToRemove: [],
-        tagsAdd: outcome.context ? [outcome.context] : [],
       });
     }
 

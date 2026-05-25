@@ -1,7 +1,21 @@
-import type { App } from 'obsidian';
-import type { TaskInfo, TaskNotesPlugin } from './tasknotes-types';
+import type { App, TFile } from 'obsidian';
+import type { TaskInfo } from './tasknotes-types';
 
 export type { TaskInfo };
+
+/**
+ * Subset of the TaskNotes plugin instance we depend on. TaskNotes does not
+ * publish a TS interface for their plugin class; this is the runtime shape
+ * we probe for in `isTaskNotesPlugin` below.
+ */
+interface TaskNotesPlugin {
+  cacheManager: {
+    getTaskInfo(path: string): Promise<TaskInfo | null>;
+  };
+  openTaskEditModal(task: TaskInfo, onTaskUpdated?: (updated: TaskInfo) => void): void;
+  openTaskEditModalForFile(file: TFile, errorMessage?: string): void;
+  manifest?: { version: string };
+}
 
 /**
  * Adapter over the TaskNotes plugin. Probes for the API surface we depend on
