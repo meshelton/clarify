@@ -39,13 +39,26 @@ const parseFrontmatter = (raw: string): { fm: Frontmatter; body: string } => {
   return { fm, body: match[2] };
 };
 
+// Inline-array string items must be quoted when they contain YAML-significant
+// characters — wiki-links like `[[Foo]]` would otherwise be parsed as nested
+// arrays, and colons / commas / hashes break the flow syntax. We use simple
+// double-quoting with backslash escaping for embedded quotes.
+const yamlNeedsQuoting = (s: string) => /[\[\]:,#"]/.test(s);
+const quoteIfNeeded = (s: string) =>
+  yamlNeedsQuoting(s) ? `"${s.replace(/"/g, '\\"')}"` : s;
+
 const serializeFrontmatter = (fm: Frontmatter, body: string): string => {
   const lines: string[] = ['---'];
   for (const [k, v] of Object.entries(fm)) {
     if (v === undefined || v === null) continue;
-    if (Array.isArray(v)) lines.push(`${k}: [${v.join(', ')}]`);
-    else if (typeof v === 'boolean' || typeof v === 'number') lines.push(`${k}: ${v}`);
-    else lines.push(`${k}: ${v}`);
+    if (Array.isArray(v)) {
+      const items = v.map((item) => quoteIfNeeded(String(item)));
+      lines.push(`${k}: [${items.join(', ')}]`);
+    } else if (typeof v === 'boolean' || typeof v === 'number') {
+      lines.push(`${k}: ${v}`);
+    } else {
+      lines.push(`${k}: ${v}`);
+    }
   }
   lines.push('---', '');
   return lines.join('\n') + body;

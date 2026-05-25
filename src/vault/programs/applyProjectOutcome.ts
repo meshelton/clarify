@@ -19,13 +19,16 @@ export const applyProjectOutcome = (
     const projectPath = `${settings.outcomes.project.folder}/${slug(projectName)}.md`;
 
     const tagsLine = `[${settings.outcomes.project.tagsAdd.join(', ')}]`;
+    // The outcome statement lives in the body of the project note; the
+    // frontmatter only carries the structured fields (status, projects link,
+    // tags, dateCreated). TaskNotes uses an ISO timestamp for dateCreated.
     const projectFm =
       `---\n` +
       `${settings.inbox.statusFieldName}: ${settings.outcomes.project.statusValue}\n` +
-      `${settings.outcomes.project.outcomeField}: ${projectName}\n` +
-      `${settings.projectsAndAreas.projectLinkField}: ${outcome.areaLink}\n` +
+      `${settings.projectsAndAreas.projectLinkField}: ["${outcome.areaLink}"]\n` +
       `tags: ${tagsLine}\n` +
-      `---\n\n${outcome.firstActionText}\n`;
+      `dateCreated: ${new Date().toISOString()}\n` +
+      `---\n\n${outcome.outcome}\n`;
     yield* vault.write(projectPath, projectFm);
 
     // Convert the original captured item into the first next action, linked to this new project.
@@ -35,7 +38,7 @@ export const applyProjectOutcome = (
       toFolder: settings.outcomes.nextAction.folder,
       frontmatterPatch: {
         [settings.inbox.statusFieldName]: settings.outcomes.nextAction.statusValue,
-        [settings.projectsAndAreas.projectLinkField]: projectLink,
+        [settings.projectsAndAreas.projectLinkField]: [projectLink],
       },
       fieldsToRemove: [],
     });

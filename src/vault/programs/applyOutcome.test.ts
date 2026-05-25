@@ -28,7 +28,7 @@ describe('applyOutcome', () => {
     expect(store.has('.trash/x.md')).toBe(true);
   });
 
-  it('someday: moves to Someday/, status someday, tag swap, project link added', async () => {
+  it('someday: moves to Someday/, status someday, tag swap, projects link added', async () => {
     const store = seed('00 Inbox/x.md');
     const layer = Layer.merge(VaultServiceTest(store), MetadataServiceTest());
     await Effect.runPromise(
@@ -38,7 +38,8 @@ describe('applyOutcome', () => {
     expect(out).toContain('status: someday');
     expect(out).toContain('someday');
     expect(out).not.toMatch(/tags:.*\btask\b/);
-    expect(out).toContain('project: [[Health]]');
+    // projects field is an array with the wiki-link quoted (TaskNotes convention)
+    expect(out).toMatch(/projects: \["\[\[Health\]\]"\]/);
   });
 
   it('tickler: includes tickleDate as scheduled', async () => {
@@ -100,7 +101,7 @@ describe('applyOutcome', () => {
     expect(store.get('00 Inbox/x.md')!).toContain('scheduled: 2026-06-15');
   });
 
-  it('nextAction: moves to Next/, sets contexts array (TaskNotes-compatible), energy, time', async () => {
+  it('nextAction: moves to Next/, sets contexts/timeEstimate (TaskNotes-compatible) and energy', async () => {
     const store = seed('00 Inbox/x.md');
     const layer = Layer.merge(VaultServiceTest(store), MetadataServiceTest());
     await Effect.runPromise(
@@ -110,15 +111,15 @@ describe('applyOutcome', () => {
       }, defaultSettings).pipe(Effect.provide(layer))
     );
     const out = store.get('Next/x.md')!;
-    // TaskNotes-compatible: contexts is an array under the `contexts` key
+    // TaskNotes conventions: contexts (array under `contexts`), timeEstimate (minutes)
     expect(out).toContain('contexts: [@computer]');
     expect(out).toContain('energy: medium');
-    expect(out).toContain('time: 30');
-    // Context should NOT be added to the tags array
+    expect(out).toContain('timeEstimate: 30');
+    // Context must NOT be added to the tags array
     expect(out).not.toMatch(/tags:.*@computer/);
   });
 
-  it('project: creates new project note, original item becomes first next action', async () => {
+  it('project: outcome goes in body, no outcome frontmatter field, dateCreated set, original becomes first next action', async () => {
     const store = new Map([
       ['00 Inbox/x.md', '---\nstatus: captured\ntags: [task]\n---\nDraft the homepage copy\n'],
     ]);
@@ -131,16 +132,18 @@ describe('applyOutcome', () => {
         areaLink: '[[Marketing]]',
       }, defaultSettings).pipe(Effect.provide(layer))
     );
-    // Project note created somewhere under Projects/
     const projectPath = Array.from(store.keys()).find((k) => k.startsWith('Projects/'));
     expect(projectPath).toBeDefined();
     const projectNote = store.get(projectPath!)!;
-    expect(projectNote).toContain('outcome: Website launched with new branding');
+    // Outcome statement lives in the body, not the frontmatter
+    expect(projectNote).not.toMatch(/^outcome:/m);
+    expect(projectNote).toContain('Website launched with new branding');
     expect(projectNote).toContain('status: active');
     expect(projectNote).toContain('project'); // tag
-    // Original item moved to Next/ as the first next action, linked to the new project
+    expect(projectNote).toMatch(/dateCreated: \d{4}-\d{2}-\d{2}T/);
+    // Original item moved to Next/ as the first next action, linked via projects array
     const next = store.get('Next/x.md')!;
     expect(next).toContain('status: next');
-    expect(next).toMatch(/project: \[\[.+\]\]/);
+    expect(next).toMatch(/projects: \["\[\[.+\]\]"\]/);
   });
 });

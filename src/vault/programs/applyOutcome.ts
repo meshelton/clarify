@@ -29,7 +29,7 @@ export const applyOutcome = (
       return moveAndRewrite({
         fromPath: item.path,
         toFolder: settings.outcomes.someday.folder,
-        frontmatterPatch: { [settings.inbox.statusFieldName]: settings.outcomes.someday.statusValue, [link]: outcome.projectLink },
+        frontmatterPatch: { [settings.inbox.statusFieldName]: settings.outcomes.someday.statusValue, [link]: [outcome.projectLink] },
         fieldsToRemove: ['scheduled', 'due', 'priority'],
         tagsAdd: settings.outcomes.someday.tagsAdd,
         tagsRemove: settings.outcomes.someday.tagsRemove,
@@ -42,7 +42,7 @@ export const applyOutcome = (
         frontmatterPatch: {
           [settings.inbox.statusFieldName]: settings.outcomes.tickler.statusValue,
           scheduled: outcome.tickleDate,
-          [link]: outcome.projectLink,
+          [link]: [outcome.projectLink],
         },
         fieldsToRemove: ['due', 'priority'],
         tagsAdd: settings.outcomes.tickler.tagsAdd,
@@ -66,7 +66,7 @@ export const applyOutcome = (
         frontmatterPatch: {
           [settings.inbox.statusFieldName]: settings.outcomes.doNow.statusValue,
           [settings.outcomes.doNow.completedDateField]: today(),
-          [link]: outcome.projectLink,
+          [link]: [outcome.projectLink],
         },
         fieldsToRemove: [],
       });
@@ -79,7 +79,7 @@ export const applyOutcome = (
           [settings.inbox.statusFieldName]: settings.outcomes.waitingFor.statusValue,
           [settings.outcomes.waitingFor.whoField]: outcome.who,
           [settings.outcomes.waitingFor.followUpField]: outcome.followUp,
-          [link]: outcome.projectLink,
+          [link]: [outcome.projectLink],
         },
         fieldsToRemove: [],
         tagsAdd: settings.outcomes.waitingFor.tagsAdd,
@@ -92,7 +92,7 @@ export const applyOutcome = (
         frontmatterPatch: {
           [settings.inbox.statusFieldName]: settings.outcomes.calendar.statusValue,
           [settings.outcomes.calendar.dateField]: outcome.date,
-          [link]: outcome.projectLink,
+          [link]: [outcome.projectLink],
         },
         fieldsToRemove: [],
       });
@@ -100,11 +100,12 @@ export const applyOutcome = (
     case 'nextAction': {
       const patch: Record<string, unknown> = {
         [settings.inbox.statusFieldName]: settings.outcomes.nextAction.statusValue,
-        [link]: outcome.projectLink,
+        [link]: [outcome.projectLink],
       };
       // TaskNotes stores contexts as an array under the `contexts` key, not as
       // a single string and not as a tag. We write it the same way so the file
-      // is interoperable with the TaskNotes views and filters.
+      // is interoperable with the TaskNotes views and filters. timeEstimate
+      // (minutes) likewise matches TaskNotes' field name.
       if (outcome.context !== undefined) patch[settings.outcomes.nextAction.contextField] = [outcome.context];
       if (outcome.energy  !== undefined) patch[settings.outcomes.nextAction.energyField]  = outcome.energy;
       if (outcome.time    !== undefined) patch[settings.outcomes.nextAction.timeField]    = outcome.time;
