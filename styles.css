@@ -29,3 +29,12 @@ body:not(.is-mobile) .clarify-footer-hints { display: block; }
 .clarify-project-row { padding: 8px 10px; border-radius: 6px; cursor: pointer; display: flex; gap: 8px; align-items: center; }
 .clarify-project-row:hover { background: var(--background-modifier-hover); }
 .clarify-project-row.create { color: var(--interactive-accent); }
+.clarify-date-presets { display: flex; gap: 8px; margin: 12px 0; }
+.clarify-date-presets button { padding: 6px 10px; border: 1px solid var(--background-modifier-border); border-radius: 6px; background: var(--background-primary-alt); cursor: pointer; }
+.clarify-text-input { width: 100%; padding: 10px; margin: 12px 0; border: 1px solid var(--background-modifier-border); border-radius: 6px; background: var(--background-primary-alt); }
+.clarify-submit { padding: 10px 16px; margin-top: 12px; border: 1px solid var(--interactive-accent); background: var(--interactive-accent); color: var(--text-on-accent); border-radius: 6px; cursor: pointer; }
+.clarify-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+.clarify-row { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+.clarify-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.clarify-chip { padding: 6px 10px; border: 1px solid var(--background-modifier-border); border-radius: 999px; background: var(--background-primary-alt); cursor: pointer; }
+.clarify-chip.active { background: var(--interactive-accent); color: var(--text-on-accent); }
