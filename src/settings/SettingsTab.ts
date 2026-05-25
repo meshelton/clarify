@@ -22,15 +22,14 @@ export class SettingsTab extends PluginSettingTab {
       .addText((t) => t.setValue(s.inbox.statusFieldName).onChange((v) => this.update('inbox.statusFieldName', v || 'status')));
 
     containerEl.createEl('h2', { text: 'Outcomes — folders' });
+    containerEl.createEl('p', {
+      text: 'Action items (someday, tickler, do-now, waiting, calendar, next-action) move into the bound project/area\'s folder — there\'s no per-outcome folder to set. The two below are for items that aren\'t bound to a project: Trash and Reference.',
+      cls: 'setting-item-description',
+    });
     const folderRow = (label: string, getter: () => string | null, setter: (v: string | null) => void) =>
       new Setting(containerEl).setName(label).addText((t) => t.setValue(getter() ?? '').onChange((v) => setter(v || null)));
-    folderRow('Trash folder',        () => s.outcomes.trash.folder,       (v) => this.update('outcomes.trash.folder', v || '.trash'));
-    folderRow('Someday folder',      () => s.outcomes.someday.folder,     (v) => this.update('outcomes.someday.folder', v || 'Someday'));
-    folderRow('Tickler folder',      () => s.outcomes.tickler.folder,     (v) => this.update('outcomes.tickler.folder', v || 'Tickler'));
-    folderRow('Reference folder',    () => s.outcomes.reference.folder,   (v) => this.update('outcomes.reference.folder', v || 'Resources'));
-    folderRow('Projects folder',     () => s.outcomes.project.folder,     (v) => this.update('outcomes.project.folder', v || 'Projects'));
-    folderRow('Waiting folder',      () => s.outcomes.waitingFor.folder,  (v) => this.update('outcomes.waitingFor.folder', v || 'Waiting'));
-    folderRow('Next actions folder', () => s.outcomes.nextAction.folder,  (v) => this.update('outcomes.nextAction.folder', v));
+    folderRow('Trash folder',     () => s.outcomes.trash.folder,     (v) => this.update('outcomes.trash.folder', v || '.trash'));
+    folderRow('Reference folder', () => s.outcomes.reference.folder, (v) => this.update('outcomes.reference.folder', v || 'Resources'));
 
     containerEl.createEl('h2', { text: 'Projects & areas' });
     new Setting(containerEl).setName('Projects folder').addText((t) => t.setValue(s.projectsAndAreas.projectsFolder).onChange((v) => this.update('projectsAndAreas.projectsFolder', v)));

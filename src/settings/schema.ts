@@ -14,15 +14,20 @@ export const ClarifySettings = Schema.Struct({
     statusFieldName: Schema.String,
   }),
   outcomes: Schema.Struct({
+    // Folder fields kept only for outcomes where the destination is NOT
+    // resolved from a project/area binding: Trash, Reference, and the new
+    // project note created by the Project outcome. Action-type outcomes
+    // (someday/tickler/doNow/waitingFor/calendar/nextAction) resolve their
+    // destination via resolveDestinationFolder against the bound project/area.
     trash:      Schema.Struct({ folder: Schema.String }),
-    someday:    Schema.Struct({ folder: Schema.String, statusValue: Schema.String, tagsAdd: StringList, tagsRemove: StringList }),
-    tickler:    Schema.Struct({ folder: Schema.String, statusValue: Schema.String, tagsAdd: StringList, tagsRemove: StringList }),
+    someday:    Schema.Struct({ statusValue: Schema.String, tagsAdd: StringList, tagsRemove: StringList }),
+    tickler:    Schema.Struct({ statusValue: Schema.String, tagsAdd: StringList, tagsRemove: StringList }),
     reference:  Schema.Struct({ folder: Schema.String, tagsAdd: StringList, tagsRemove: StringList, fieldsRemove: StringList }),
-    project:    Schema.Struct({ folder: Schema.String, statusValue: Schema.String, tagsAdd: StringList, tagsRemove: StringList }),
+    project:    Schema.Struct({ statusValue: Schema.String, tagsAdd: StringList, tagsRemove: StringList }),
     doNow:      Schema.Struct({ statusValue: Schema.String, completedDateField: Schema.String }),
-    waitingFor: Schema.Struct({ folder: Schema.String, statusValue: Schema.String, tagsAdd: StringList, whoField: Schema.String, followUpField: Schema.String }),
+    waitingFor: Schema.Struct({ statusValue: Schema.String, tagsAdd: StringList, whoField: Schema.String, followUpField: Schema.String }),
     calendar:   Schema.Struct({ statusValue: Schema.String, dateField: Schema.String }),
-    nextAction: Schema.Struct({ folder: Schema.NullOr(Schema.String), statusValue: Schema.String, contextField: Schema.String, energyField: Schema.String, timeField: Schema.String }),
+    nextAction: Schema.Struct({ statusValue: Schema.String, contextField: Schema.String, energyField: Schema.String, timeField: Schema.String }),
   }),
   projectsAndAreas: Schema.Struct({
     projectsFolder: Schema.String,
@@ -47,14 +52,14 @@ export const defaultSettings: ClarifySettings = {
   },
   outcomes: {
     trash:      { folder: '.trash' },
-    someday:    { folder: 'Someday',  statusValue: 'someday',   tagsAdd: ['someday'],   tagsRemove: ['task'] },
-    tickler:    { folder: 'Tickler',  statusValue: 'tickler',   tagsAdd: ['tickler'],   tagsRemove: ['task'] },
+    someday:    { statusValue: 'someday',   tagsAdd: ['someday'],   tagsRemove: ['task'] },
+    tickler:    { statusValue: 'tickler',   tagsAdd: ['tickler'],   tagsRemove: ['task'] },
     reference:  { folder: 'Resources', tagsAdd: ['reference'], tagsRemove: ['task'], fieldsRemove: ['status','priority','scheduled','due'] },
-    project:    { folder: 'Projects', statusValue: 'active',    tagsAdd: ['project'],   tagsRemove: ['task'] },
+    project:    { statusValue: 'active', tagsAdd: ['project'], tagsRemove: ['task'] },
     doNow:      { statusValue: 'done', completedDateField: 'completedDate' },
-    waitingFor: { folder: 'Waiting',  statusValue: 'waiting',   tagsAdd: ['waiting'],   whoField: 'waitingFor', followUpField: 'scheduled' },
+    waitingFor: { statusValue: 'waiting', tagsAdd: ['waiting'], whoField: 'waitingFor', followUpField: 'scheduled' },
     calendar:   { statusValue: 'scheduled', dateField: 'scheduled' },
-    nextAction: { folder: 'Next', statusValue: 'next', contextField: 'contexts', energyField: 'energy', timeField: 'timeEstimate' },
+    nextAction: { statusValue: 'next', contextField: 'contexts', energyField: 'energy', timeField: 'timeEstimate' },
   },
   projectsAndAreas: {
     projectsFolder: 'Projects',

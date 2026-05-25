@@ -27,8 +27,10 @@ describe('integration — clarify a full inbox', () => {
 
     expect(store.has('00 Inbox/a.md')).toBe(false);
     expect(store.has('.trash/a.md')).toBe(true);
-    expect(store.has('00 Inbox/b.md')).toBe(true);
-    expect(store.get('00 Inbox/b.md')!).toContain('status: done');
+    // doNow now moves out of inbox into the bound area (Areas/Misc.md exists,
+    // so the resolver returns Areas/ root).
+    expect(store.has('00 Inbox/b.md')).toBe(false);
+    expect(store.get('Areas/b.md')!).toContain('status: done');
     expect(store.has('00 Inbox/c.md')).toBe(false);
     expect(store.has('Resources/c.md')).toBe(true);
   });

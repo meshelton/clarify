@@ -33,7 +33,11 @@ export const VaultServiceTest = (store: Map<string, string>) =>
       store.has(path)
         ? Effect.sync(() => { store.delete(path); })
         : Effect.fail(new FileNotFound({ path })),
-    exists: (path) => Effect.succeed(store.has(path)),
+    exists: (path) =>
+      Effect.succeed(
+        // File at exact path, or any key inside a folder at that path.
+        store.has(path) || Array.from(store.keys()).some((k) => k.startsWith(`${path}/`))
+      ),
     listFolder: (folder) => {
       if (folder === '') return Effect.succeed(Array.from(store.keys()));
       const prefix = folder.endsWith('/') ? folder : `${folder}/`;

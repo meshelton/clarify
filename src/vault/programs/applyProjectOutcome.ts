@@ -4,6 +4,7 @@ import { MetadataService } from '../services/MetadataService';
 import { ClarifySettings } from '../../settings/schema';
 import { Item } from '../schema/item';
 import { moveAndRewrite } from './moveAndRewrite';
+import { resolveDestinationFolder } from './applyOutcome';
 
 const slug = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'project';
@@ -16,12 +17,14 @@ export const applyProjectOutcome = (
   Effect.gen(function* () {
     const vault = yield* VaultService;
     const projectName = outcome.outcome;
-    const projectPath = `${settings.outcomes.project.folder}/${slug(projectName)}.md`;
+    const projectSlug = slug(projectName);
+    const projectPath = `${settings.projectsAndAreas.projectsFolder}/${projectSlug}.md`;
 
     const tagsLine = `[${settings.outcomes.project.tagsAdd.join(', ')}]`;
     // The outcome statement lives in the body of the project note; the
-    // frontmatter only carries the structured fields (status, projects link,
-    // tags, dateCreated). TaskNotes uses an ISO timestamp for dateCreated.
+    // frontmatter only carries the structured fields (status, projects link
+    // to the area, tags, dateCreated). TaskNotes uses an ISO timestamp for
+    // dateCreated.
     const projectFm =
       `---\n` +
       `${settings.inbox.statusFieldName}: ${settings.outcomes.project.statusValue}\n` +
@@ -31,11 +34,15 @@ export const applyProjectOutcome = (
       `---\n\n${outcome.outcome}\n`;
     yield* vault.write(projectPath, projectFm);
 
-    // Convert the original captured item into the first next action, linked to this new project.
-    const projectLink = `[[${slug(projectName)}]]`;
+    // Convert the original captured item into the first next action, linked
+    // to the new project. The destination folder is resolved against the
+    // just-created project note (so the task lands in Projects/ root, or in
+    // a Projects/<projectSlug>/ subfolder if one happens to exist already).
+    const projectLink = `[[${projectSlug}]]`;
+    const dest = yield* resolveDestinationFolder(projectLink, settings);
     yield* moveAndRewrite({
       fromPath: item.path,
-      toFolder: settings.outcomes.nextAction.folder,
+      toFolder: dest,
       frontmatterPatch: {
         [settings.inbox.statusFieldName]: settings.outcomes.nextAction.statusValue,
         [settings.projectsAndAreas.projectLinkField]: [projectLink],
