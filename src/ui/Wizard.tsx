@@ -43,7 +43,7 @@ const TimingOptions = [
   { key: '2', outcome: 'nextAction', icon: '✅', label: 'As-soon-as',    description: 'Just needs doing' },
 ];
 
-const ItemFlow = ({ item, projects, onSubmitted }: { item: Item; projects: ProjectRef[]; onSubmitted: (o: Outcome) => void }) => {
+const ItemFlow = ({ item, projects, settings, onSubmitted }: { item: Item; projects: ProjectRef[]; settings: ClarifySettings; onSubmitted: (o: Outcome) => void }) => {
   const [actor] = useState(() => createActor(itemMachine, { input: { item } }).start());
   const [, force] = useState(0);
   useEffect(() => {
@@ -57,11 +57,11 @@ const ItemFlow = ({ item, projects, onSubmitted }: { item: Item; projects: Proje
 
   if (v === 'assessing') {
     return <BinaryQuestion item={item} question="Is it actionable?"
-      onYes={() => actor.send({ type: 'YES' })} onNo={() => actor.send({ type: 'NO' })} />;
+      onYes={() => actor.send({ type: 'YES' })} onNo={() => actor.send({ type: 'NO' })} settings={settings} />;
   }
   if (v?.notActionable === 'choosing') {
     return <MultiOption item={item} question="Where does it go?" options={OutcomeOptions}
-      onPick={(o) => actor.send({ type: 'PICK', outcome: o })} />;
+      onPick={(o) => actor.send({ type: 'PICK', outcome: o })} settings={settings} />;
   }
   if (v?.notActionable?.someday === 'bindingProjectOrArea') {
     return <ProjectPicker item={item} options={projects}
@@ -77,7 +77,7 @@ const ItemFlow = ({ item, projects, onSubmitted }: { item: Item; projects: Proje
   }
   if (v?.actionable === 'complexity') {
     return <MultiOption item={item} question="Single step or multi-step?" options={ComplexityOptions}
-      onPick={(o) => actor.send({ type: 'PICK', outcome: o })} />;
+      onPick={(o) => actor.send({ type: 'PICK', outcome: o })} settings={settings} />;
   }
   if (v?.actionable?.project === 'definingOutcome') {
     return <ProjectOutcome item={item}
@@ -95,7 +95,7 @@ const ItemFlow = ({ item, projects, onSubmitted }: { item: Item; projects: Proje
   }
   if (v?.actionable?.single === 'duration') {
     return <BinaryQuestion item={item} question="Will it take under 2 minutes?"
-      onYes={() => actor.send({ type: 'YES' })} onNo={() => actor.send({ type: 'NO' })} />;
+      onYes={() => actor.send({ type: 'YES' })} onNo={() => actor.send({ type: 'NO' })} settings={settings} />;
   }
   if (v?.actionable?.single?.doNow === 'bindingProjectOrArea') {
     return <ProjectPicker item={item} options={projects}
@@ -103,7 +103,7 @@ const ItemFlow = ({ item, projects, onSubmitted }: { item: Item; projects: Proje
   }
   if (v?.actionable?.single?.defer === 'ownership') {
     return <MultiOption item={item} question="Mine, or someone else's?" options={OwnershipOptions}
-      onPick={(o) => actor.send({ type: 'PICK', outcome: o })} />;
+      onPick={(o) => actor.send({ type: 'PICK', outcome: o })} settings={settings} />;
   }
   if (v?.actionable?.single?.defer?.delegate === 'pickingWho') {
     return <WaitingForInput item={item}
@@ -119,7 +119,7 @@ const ItemFlow = ({ item, projects, onSubmitted }: { item: Item; projects: Proje
   }
   if (v?.actionable?.single?.defer?.mine === 'timing') {
     return <MultiOption item={item} question="Specific date, or as-soon-as?" options={TimingOptions}
-      onPick={(o) => actor.send({ type: 'PICK', outcome: o })} />;
+      onPick={(o) => actor.send({ type: 'PICK', outcome: o })} settings={settings} />;
   }
   if (v?.actionable?.single?.defer?.mine?.calendar === 'pickingDate') {
     return <DatePicker item={item} question="Which date?"
@@ -195,6 +195,7 @@ export const Wizard = ({ settings, runEffect }: Props) => {
           key={item.path}
           item={item}
           projects={projects}
+          settings={settings}
           onSubmitted={(o) => send({ type: 'ITEM_DONE', outcome: o })}
         />
       );
