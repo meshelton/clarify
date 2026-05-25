@@ -38,3 +38,10 @@ body:not(.is-mobile) .clarify-footer-hints { display: block; }
 .clarify-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .clarify-chip { padding: 6px 10px; border: 1px solid var(--background-modifier-border); border-radius: 999px; background: var(--background-primary-alt); cursor: pointer; }
 .clarify-chip.active { background: var(--interactive-accent); color: var(--text-on-accent); }
+
+/* modal sizing — wizard wants more room than Obsidian's default modal */
+.clarify-modal { width: min(640px, 92vw); height: min(720px, 88vh); max-height: 88vh; }
+.clarify-modal .modal-content { padding: 0; height: 100%; }
+.clarify-modal .clarify-view { padding: 24px; height: 100%; min-height: 0; }
+body.is-mobile .clarify-modal { width: 100vw; height: 100vh; max-height: 100vh; border-radius: 0; }
+body.is-mobile .clarify-modal .clarify-view { padding: 12px; }
