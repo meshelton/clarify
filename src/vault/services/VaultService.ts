@@ -44,8 +44,22 @@ export const VaultServiceTest = (store: Map<string, string>) =>
   });
 
 /** Live layer backed by Obsidian's Vault API. */
-export const VaultServiceLive = (vault: Vault) =>
-  Layer.succeed(VaultService, {
+export const VaultServiceLive = (vault: Vault) => {
+  const ensureFolder = async (filePath: string) => {
+    const slash = filePath.lastIndexOf('/');
+    if (slash < 0) return;
+    const folder = filePath.slice(0, slash);
+    if (!folder) return;
+    if (vault.getAbstractFileByPath(folder)) return;
+    try {
+      await vault.createFolder(folder);
+    } catch (e) {
+      // Race or "already exists" — fine if the folder is now present
+      if (!vault.getAbstractFileByPath(folder)) throw e;
+    }
+  };
+
+  return Layer.succeed(VaultService, {
     read: (path) =>
       Effect.tryPromise({
         try: async () => {
@@ -61,6 +75,7 @@ export const VaultServiceLive = (vault: Vault) =>
         if (file) {
           await vault.modify(file, content);
         } else {
+          await ensureFolder(path);
           await vault.create(path, content);
         }
       }).pipe(Effect.orDie),
@@ -69,6 +84,7 @@ export const VaultServiceLive = (vault: Vault) =>
         try: async () => {
           const file = vault.getAbstractFileByPath(from) as TFile | null;
           if (!file) throw new FileNotFound({ path: from });
+          await ensureFolder(to);
           await vault.rename(file, to);
         },
         catch: () => new FileNotFound({ path: from }),
@@ -93,3 +109,4 @@ export const VaultServiceLive = (vault: Vault) =>
           .map((f) => f.path);
       }),
   });
+};
