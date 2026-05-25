@@ -1,8 +1,26 @@
-/*
+.clarify-view { padding: 24px; font-family: var(--font-interface); display: flex; flex-direction: column; min-height: 100%; }
+.clarify-crumb { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.clarify-progress { height: 3px; background: var(--background-modifier-border); border-radius: 2px; overflow: hidden; margin-bottom: 16px; }
+.clarify-progress > div { height: 100%; background: var(--interactive-accent); transition: width .15s; }
+.clarify-question-banner { font-size: 22px; font-weight: 600; text-align: center; padding: 16px 12px; background: var(--background-secondary); border-radius: 10px; margin-bottom: 16px; }
+.clarify-item-card { background: var(--background-secondary); border: 1px solid var(--background-modifier-border); border-radius: 6px; padding: 12px 14px; font-size: 14px; flex: 1; }
+.clarify-item-card.compact { flex: 0 0 auto; font-size: 13px; padding: 8px 10px; }
+.clarify-item-card .meta { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+.clarify-key-hint { display: inline-block; }
+.clarify-key-hint kbd { padding: 2px 8px; border: 1px solid var(--background-modifier-border); border-radius: 4px; font-family: var(--font-monospace); font-size: 12px; background: var(--background-primary-alt); margin: 0 2px; }
+.clarify-kbd-row { display: flex; gap: 16px; margin-top: 16px; justify-content: center; }
+.clarify-kbd-opt { padding: 14px 28px; border: 1px solid var(--background-modifier-border); border-radius: 8px; background: var(--background-primary-alt); min-width: 110px; text-align: center; cursor: pointer; }
+.clarify-kbd-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.clarify-kbd-grid .opt { padding: 16px; border: 1px solid var(--background-modifier-border); border-radius: 8px; background: var(--background-primary-alt); display: flex; align-items: center; gap: 14px; cursor: pointer; }
+.clarify-footer-hints { font-size: 11px; color: var(--text-muted); margin-top: 12px; text-align: center; }
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
-
-*/
+/* mobile */
+body.is-mobile .clarify-view { padding: 12px; }
+body.is-mobile .clarify-kbd-row { display: none; }
+body.is-mobile .clarify-kbd-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+body.is-mobile .clarify-kbd-grid .opt { flex-direction: column; justify-content: center; padding: 12px 6px; gap: 6px; text-align: center; }
+body.is-mobile .clarify-kbd-grid .opt .key { display: none; }
+body.is-mobile .clarify-button-row { display: flex; gap: 8px; margin-top: 12px; }
+body.is-mobile .clarify-button-row .btn { flex: 1; padding: 14px; border-radius: 8px; text-align: center; font-weight: 600; }
+body:not(.is-mobile) .clarify-button-row { display: none; }
+body:not(.is-mobile) .clarify-footer-hints { display: block; }
