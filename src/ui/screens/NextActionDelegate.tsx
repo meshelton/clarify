@@ -36,8 +36,12 @@ export const NextActionDelegate = ({ app, item, onDone }: Props) => {
         // applyOutcome) picks up the new path. The Item is the same JS object
         // sessionMachine holds in its queue, so this mutation is the cheapest
         // way to forward the new path through to apply without restructuring
-        // the state machine's output shape.
-        if (updated?.path && updated.path !== item.path) item.path = updated.path;
+        // the state machine's output shape. The narrow cast is the deliberate
+        // escape hatch — Effect Schema marks `path` readonly but the actual
+        // JS object is mutable.
+        if (updated?.path && updated.path !== item.path) {
+          (item as { path: string }).path = updated.path;
+        }
         onDone();
       });
     } catch (e) {
