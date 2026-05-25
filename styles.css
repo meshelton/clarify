@@ -24,3 +24,8 @@ body.is-mobile .clarify-button-row { display: flex; gap: 8px; margin-top: 12px; 
 body.is-mobile .clarify-button-row .btn { flex: 1; padding: 14px; border-radius: 8px; text-align: center; font-weight: 600; }
 body:not(.is-mobile) .clarify-button-row { display: none; }
 body:not(.is-mobile) .clarify-footer-hints { display: block; }
+.clarify-project-filter { width: 100%; padding: 8px 10px; margin: 8px 0; border: 1px solid var(--background-modifier-border); border-radius: 6px; background: var(--background-primary-alt); }
+.clarify-project-list { display: flex; flex-direction: column; gap: 4px; }
+.clarify-project-row { padding: 8px 10px; border-radius: 6px; cursor: pointer; display: flex; gap: 8px; align-items: center; }
+.clarify-project-row:hover { background: var(--background-modifier-hover); }
+.clarify-project-row.create { color: var(--interactive-accent); }
