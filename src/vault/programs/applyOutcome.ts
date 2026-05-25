@@ -97,20 +97,22 @@ export const applyOutcome = (
         fieldsToRemove: [],
       });
 
-    case 'nextAction':
+    case 'nextAction': {
+      const patch: Record<string, unknown> = {
+        [settings.inbox.statusFieldName]: settings.outcomes.nextAction.statusValue,
+        [link]: outcome.projectLink,
+      };
+      if (outcome.context !== undefined) patch[settings.outcomes.nextAction.contextField] = outcome.context;
+      if (outcome.energy  !== undefined) patch[settings.outcomes.nextAction.energyField]  = outcome.energy;
+      if (outcome.time    !== undefined) patch[settings.outcomes.nextAction.timeField]    = outcome.time;
       return moveAndRewrite({
         fromPath: item.path,
         toFolder: settings.outcomes.nextAction.folder,
-        frontmatterPatch: {
-          [settings.inbox.statusFieldName]: settings.outcomes.nextAction.statusValue,
-          [settings.outcomes.nextAction.contextField]: outcome.context,
-          [settings.outcomes.nextAction.energyField]: outcome.energy,
-          [settings.outcomes.nextAction.timeField]: outcome.time,
-          [link]: outcome.projectLink,
-        },
+        frontmatterPatch: patch,
         fieldsToRemove: [],
-        tagsAdd: [outcome.context],
+        tagsAdd: outcome.context ? [outcome.context] : [],
       });
+    }
 
     case 'project':
       return applyProjectOutcome(item, outcome, settings);

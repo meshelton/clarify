@@ -13,9 +13,13 @@ export const CalendarOutcome   = Schema.Struct({ type: Schema.Literal('calendar'
 export const NextActionOutcome = Schema.Struct({
   type: Schema.Literal('nextAction'),
   projectLink: ProjectLink,
-  context: Schema.String,
-  energy: Schema.Union(Schema.Literal('low'), Schema.Literal('medium'), Schema.Literal('high')),
-  time: Schema.Number,
+  // context / energy / time are optional — when TaskNotes is installed the
+  // wizard delegates those fields to TaskNotes' edit modal and leaves them
+  // unset on the Outcome, then applyOutcome skips writing them so TaskNotes'
+  // values are preserved.
+  context: Schema.optional(Schema.String),
+  energy: Schema.optional(Schema.Union(Schema.Literal('low'), Schema.Literal('medium'), Schema.Literal('high'))),
+  time: Schema.optional(Schema.Number),
 });
 
 export const Outcome = Schema.Union(

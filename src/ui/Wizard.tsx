@@ -12,18 +12,27 @@ import { ProjectPicker } from './screens/ProjectPicker';
 import { DatePicker } from './screens/DatePicker';
 import { WaitingForInput } from './screens/WaitingForInput';
 import { NextActionAttrs } from './screens/NextActionAttrs';
+import { NextActionDelegate } from './screens/NextActionDelegate';
 import { ProjectOutcome } from './screens/ProjectOutcome';
 import { SessionComplete } from './screens/SessionComplete';
+import type { App } from 'obsidian';
 import type { ClarifySettings } from '../settings/schema';
 import type { Item } from '../vault/schema/item';
 import type { Outcome } from '../vault/schema/outcome';
 import type { ProjectRef } from '../vault/services/ProjectService';
 
 interface Props {
+  app: App;
   settings: ClarifySettings;
   runEffect: <A, E>(e: Effect.Effect<A, E, any>) => Promise<A>;
   onDone?: () => void;
 }
+
+const hasTaskNotes = (app: App): boolean => {
+  const plugins = (app as unknown as { plugins?: { plugins?: Record<string, unknown> } }).plugins?.plugins;
+  const tn = plugins?.tasknotes as { openTaskEditModal?: unknown; cacheManager?: { getTaskInfo?: unknown } } | undefined;
+  return !!(tn?.openTaskEditModal && tn.cacheManager?.getTaskInfo);
+};
 
 const OutcomeOptions = [
   { key: '1', outcome: 'trash',     icon: '🗑️', label: 'Trash',           description: 'Nothing to do' },
@@ -44,7 +53,7 @@ const TimingOptions = [
   { key: '2', outcome: 'nextAction', icon: '✅', label: 'As-soon-as',    description: 'Just needs doing' },
 ];
 
-const ItemFlow = ({ item, projects, settings, onSubmitted }: { item: Item; projects: ProjectRef[]; settings: ClarifySettings; onSubmitted: (o: Outcome) => void }) => {
+const ItemFlow = ({ app, item, projects, settings, onSubmitted }: { app: App; item: Item; projects: ProjectRef[]; settings: ClarifySettings; onSubmitted: (o: Outcome) => void }) => {
   const [actor] = useState(() => createActor(itemMachine, { input: { item } }).start());
   const [, force] = useState(0);
   useEffect(() => {
@@ -135,6 +144,18 @@ const ItemFlow = ({ item, projects, settings, onSubmitted }: { item: Item; proje
     v?.actionable?.single?.defer?.mine?.nextAction === 'pickingEnergy' ||
     v?.actionable?.single?.defer?.mine?.nextAction === 'pickingTime'
   ) {
+    if (hasTaskNotes(app)) {
+      return <NextActionDelegate
+        app={app}
+        item={item}
+        onDone={() => {
+          // Skip the three attr screens; TaskNotes will own those fields.
+          actor.send({ type: 'YES' });
+          actor.send({ type: 'YES' });
+          actor.send({ type: 'YES' });
+        }}
+      />;
+    }
     return <NextActionAttrs item={item}
       onSubmit={({ context, energy, time }) => {
         actor.send({ type: 'INPUT', field: 'context', value: context });
@@ -153,7 +174,7 @@ const ItemFlow = ({ item, projects, settings, onSubmitted }: { item: Item; proje
   return <div>Unknown state: {JSON.stringify(v)}</div>;
 };
 
-export const Wizard = ({ settings, runEffect, onDone }: Props) => {
+export const Wizard = ({ app, settings, runEffect, onDone }: Props) => {
   const [snapshot, send] = useMachine(sessionMachine, { input: { settings, runEffect } });
   const [projects, setProjects] = useState<ProjectRef[]>([]);
 
@@ -194,6 +215,7 @@ export const Wizard = ({ settings, runEffect, onDone }: Props) => {
       return (
         <ItemFlow
           key={item.path}
+          app={app}
           item={item}
           projects={projects}
           settings={settings}

@@ -18,7 +18,7 @@ export class ClarifyModal extends Modal {
     this.contentEl.empty();
     this.contentEl.addClass('clarify-view');
     render(
-      h(Wizard, { settings: this.settings, runEffect: this.runEffect, onDone: () => this.close() }),
+      h(Wizard, { app: this.app, settings: this.settings, runEffect: this.runEffect, onDone: () => this.close() }),
       this.contentEl,
     );
   }
