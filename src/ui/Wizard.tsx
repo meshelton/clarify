@@ -91,10 +91,8 @@ const ItemFlow = ({ app, item, projects, settings, onSubmitted }: { app: App; it
   }
   if (v?.actionable?.project === 'definingOutcome') {
     return <ProjectOutcome item={item}
-      onSubmit={(outcome, firstAction) => {
+      onSubmit={(outcome) => {
         actor.send({ type: 'INPUT', field: 'outcome', value: outcome });
-        actor.send({ type: 'INPUT', field: 'firstActionText', value: firstAction });
-        actor.send({ type: 'YES' });
         actor.send({ type: 'YES' });
       }} />;
   }

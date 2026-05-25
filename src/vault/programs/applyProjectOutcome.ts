@@ -10,7 +10,7 @@ const slug = (s: string) =>
 
 export const applyProjectOutcome = (
   item: Item,
-  outcome: { outcome: string; firstActionText: string; areaLink: string },
+  outcome: { outcome: string; areaLink: string },
   settings: ClarifySettings
 ) =>
   Effect.gen(function* () {

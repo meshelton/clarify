@@ -100,9 +100,8 @@ export const itemMachine = setup({
         project: {
           initial: 'definingOutcome',
           states: {
-            definingOutcome:     { on: { INPUT: { actions: 'setField' }, YES: 'definingFirstAction', BACK: { target: '#item.actionable.complexity' } } },
-            definingFirstAction: { on: { INPUT: { actions: 'setField' }, YES: 'bindingArea', BACK: { target: '#item.actionable.project.definingOutcome' } } },
-            bindingArea:         { on: { INPUT: { actions: 'setField' }, SUBMIT: 'done', BACK: { target: '#item.actionable.project.definingFirstAction' } } },
+            definingOutcome: { on: { INPUT: { actions: 'setField' }, YES: 'bindingArea', BACK: { target: '#item.actionable.complexity' } } },
+            bindingArea:     { on: { INPUT: { actions: 'setField' }, SUBMIT: 'done', BACK: { target: '#item.actionable.project.definingOutcome' } } },
             done: { type: 'final' },
           },
           onDone: { target: '#item.submitted' },

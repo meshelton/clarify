@@ -128,7 +128,6 @@ describe('applyOutcome', () => {
       applyOutcome(inboxItem('00 Inbox/x.md'), {
         type: 'project',
         outcome: 'Website launched with new branding',
-        firstActionText: 'Draft homepage copy',
         areaLink: '[[Marketing]]',
       }, defaultSettings).pipe(Effect.provide(layer))
     );

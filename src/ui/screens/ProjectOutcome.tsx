@@ -6,12 +6,11 @@ import type { Item } from '../../vault/schema/item';
 
 interface Props {
   item: Item;
-  onSubmit: (outcome: string, firstAction: string) => void;
+  onSubmit: (outcome: string) => void;
 }
 
 export const ProjectOutcome = ({ item, onSubmit }: Props) => {
-  const [outcome, setOutcome]         = useState('');
-  const [firstAction, setFirstAction] = useState(item.title);
+  const [outcome, setOutcome] = useState('');
   return (
     <div class="clarify-screen">
       <QuestionBanner text="Define the project" />
@@ -20,11 +19,7 @@ export const ProjectOutcome = ({ item, onSubmit }: Props) => {
         <label>Outcome (what success looks like)</label>
         <input class="clarify-text-input" value={outcome} onInput={(e) => setOutcome((e.target as HTMLInputElement).value)} />
       </div>
-      <div class="clarify-row">
-        <label>First next action</label>
-        <input class="clarify-text-input" value={firstAction} onInput={(e) => setFirstAction((e.target as HTMLInputElement).value)} />
-      </div>
-      <button class="clarify-submit" disabled={!outcome.trim() || !firstAction.trim()} onClick={() => onSubmit(outcome.trim(), firstAction.trim())}>Continue</button>
+      <button class="clarify-submit" disabled={!outcome.trim()} onClick={() => onSubmit(outcome.trim())}>Continue</button>
     </div>
   );
 };
